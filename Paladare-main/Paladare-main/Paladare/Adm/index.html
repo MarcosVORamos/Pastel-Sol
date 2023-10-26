@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        form {
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .lanche-item {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            position: relative;
+        }
+        .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<form id="adminForm">
+    <label for="titulo">Título:</label>
+    <input type="text" id="titulo" name="titulo" required>
+
+    <label for="descricao">Descrição:</label>
+    <textarea id="descricao" name="descricao" required></textarea>
+
+    <label for="imagem">URL da Imagem:</label>
+    <input type="text" id="imagem" name="imagem" required>
+
+    <label for="preco">Preço:</label>
+    <input type="text" id="preco" name="preco" required>
+
+    <button type="button" onclick="adicionarLanche()">Adicionar Lanche</button>
+</form>
+
+<div id="listaLanches"></div>
+
+<script>
+    var lanches = [];
+
+    function adicionarLanche() {
+        var titulo = document.getElementById("titulo").value;
+        var descricao = document.getElementById("descricao").value;
+        var imagem = document.getElementById("imagem").value;
+        var preco = document.getElementById("preco").value;
+
+        var novoLanche = {
+            id: lanches.length,
+            titulo: titulo,
+            descricao: descricao,
+            imagem: imagem,
+            preco: preco
+        };
+
+        lanches.push(novoLanche);
+
+        document.getElementById("adminForm").reset();
+
+        exibirLanches(); // Chame a função para exibir os lanches após adicionar um novo
+    }
+
+    function excluirLanche(id) {
+        lanches = lanches.filter(function (lanche) {
+            return lanche.id !== id;
+        });
+
+        exibirLanches();
+    }
+
+    function exibirLanches() {
+        var listaLanches = document.getElementById("listaLanches");
+        listaLanches.innerHTML = "";
+
+        lanches.forEach(function (lanche) {
+            var lancheItem = document.createElement("div");
+            lancheItem.classList.add("lanche-item");
+
+            var deleteBtn = document.createElement("button");
+            deleteBtn.classList.add("delete-btn");
+            deleteBtn.innerHTML = "Excluir";
+            deleteBtn.onclick = function () {
+                excluirLanche(lanche.id);
+            };
+
+            lancheItem.innerHTML =
+                "<strong>" + lanche.titulo + "</strong><br>" +
+                "Descrição: " + lanche.descricao + "<br>" +
+                "Preço: $" + lanche.preco + "<br>" +
+                "<img src='" + lanche.imagem + "' alt='Imagem do lanche' width='100'><br>";
+
+            lancheItem.appendChild(deleteBtn);
+            listaLanches.appendChild(lancheItem);
+        });
+    }
+
+    // Carregue os dados do JSON quando a página carregar
+    window.onload = function() {
+        fetch('../Cardapio/produtos.json')
+            .then(response => response.json())
+            .then(data => {
+                lanches = data;
+                exibirLanches(); // Chame a função para exibir os lanches ao carregar a página
+            })
+            .catch(error => console.error('Erro ao carregar o arquivo JSON:', error));
+    };
+</script>
+
+</body>
+</html>
